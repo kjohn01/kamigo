@@ -7,9 +7,9 @@ const perform = require('./perform');
 module.exports = async function App() {
   return router([
     // Learn tricks, pattern of the command: kamigo learn;keyword;response
-    text(/^kamigo learn;([^;]+);([^;]+)$/, learn),
+    text(/^kamigo learn;([^;]+);([^;]+)$/i, learn),
     // Forget a trick, pattern of the command: kamigo forget;keyword
-    text(/^kamigo forget;([^;]+)$/, forget),
+    text(/^kamigo forget;([^;]+)$/i, forget),
     // Perform the tricks
     text('*', perform),
   ]);

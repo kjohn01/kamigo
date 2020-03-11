@@ -2,7 +2,7 @@ const db = require('./db');
 
 const learn = async context => {
   const { text } = context.event;
-  const [, key, val] = text.split(';');
+  const [, key, val] = text.toLowerCase().split(';');
 
   // Check if it's a taught trick
   if (!db.map[key]) db.map[key] = [];
@@ -14,7 +14,7 @@ const learn = async context => {
     message: val,
   });
 
-  await context.sendText('Got it!');
+  await context.sendText(`You say ${key} I say ${val}`);
   return;
 };
 

@@ -3,7 +3,9 @@ const db = require('./db');
 
 const perform = async context => {
   const { text } = context.event;
-  const mappings = db.map[text];
+  const mappings = db.map[text.toLowerCase()];
+  let answer =
+    'To teach me a trick, follow the pattern: kamigo learn;keyword;response. To making me forget a trick, follow the pattern: kamigo forget;keyword';
   // Check if it's a taught trick
   if (mappings && mappings.length > 0) {
     // The trick may have been taught outside of the current group/room,
@@ -13,13 +15,11 @@ const perform = async context => {
     });
 
     // Check local first, if unavailable, then use the global
-    const answer = last(
-      localMappings.length > 0 ? localMappings : globalMappings
-    ).message;
-
-    await context.sendText(answer);
-    return;
+    answer = last(localMappings.length > 0 ? localMappings : globalMappings)
+      .message;
   }
+  await context.sendText(answer);
+  return;
 };
 
 module.exports = perform;
