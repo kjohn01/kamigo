@@ -1,45 +1,39 @@
 const { partition, last } = require('lodash');
+const { router, text } = require('bottender/router');
 
 const db = {
   map: {},
 };
 
-module.exports = async function App(context) {
-  // Learn tricks
-  const { text } = context.event;
-  // Pattern of the command: kamigo learn;keyword;response
-  if (/^kamigo learn;([^;]+);([^;]+)$/.test(text)) {
-    // Detect the trick-learning command
-    const [, key, val] = text.split(';');
+const learn = async context => {
+  const [, key, val] = text.split(';');
 
-    // Check if it's a taught trick
-    if (!db.map[key]) db.map[key] = [];
+  // Check if it's a taught trick
+  if (!db.map[key]) db.map[key] = [];
 
-    // Update/Learn new trick
-    db.map[key].push({
-      sessionId: context.session.id,
-      keyword: key,
-      message: val,
-    });
+  // Update/Learn new trick
+  db.map[key].push({
+    sessionId: context.session.id,
+    keyword: key,
+    message: val,
+  });
 
-    await context.sendText('Got it!');
-    return;
-  }
+  await context.sendText('Got it!');
+  return;
+};
 
-  // Forget a trick
-  // Pattern of the command: kamigo forget;keyword
-  if (/^kamigo forget;([^;]+)$/.test(text)) {
-    const [, key] = text.split(';');
-    // Remove the trick by the session ID
-    db.map[key] = db.map[key].filter(
-      mapping => mapping.sessionId !== context.session.id
-    );
-    // If there's no match of the keys, nothing's happening
-    await context.sendText('Trick forgotten');
-    return;
-  }
+const forget = async context => {
+  const [, key] = text.split(';');
+  // Remove the trick by the session ID
+  db.map[key] = db.map[key].filter(
+    mapping => mapping.sessionId !== context.session.id
+  );
+  // If there's no match of the keys, nothing's happening
+  await context.sendText('Trick forgotten');
+  return;
+};
 
-  // Do the tricks
+const perform = async context => {
   const mappings = db.map[text];
   // Check if it's a taught trick
   if (mappings && mappings.length > 0) {
@@ -57,4 +51,15 @@ module.exports = async function App(context) {
     await context.sendText(answer);
     return;
   }
+};
+
+module.exports = async function App(context) {
+  return router([
+    // Learn tricks, pattern of the command: kamigo learn;keyword;response
+    text(/^kamigo learn;([^;]+);([^;]+)$/, learn),
+    // Forget a trick, pattern of the command: kamigo forget;keyword
+    text(/^kamigo forget;([^;]+)$/, forget),
+    // Perform the tricks
+    text('*', perform),
+  ]);
 };
