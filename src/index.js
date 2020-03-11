@@ -26,6 +26,19 @@ module.exports = async function App(context) {
     return;
   }
 
+  // Forget a trick
+  // Pattern of the command: kamigo forget;keyword
+  if (/^kamigo forget;([^;]+)$/.test(text)) {
+    const [, key] = text.split(';');
+    // Remove the trick by the session ID
+    db.map[key] = db.map[key].filter(
+      mapping => mapping.sessionId !== context.session.id
+    );
+    // If there's no match of the keys, nothing's happening
+    await context.sendText('Trick forgotten');
+    return;
+  }
+
   // Do the tricks
   const mappings = db.map[text];
   // Check if it's a taught trick
