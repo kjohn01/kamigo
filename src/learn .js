@@ -14,7 +14,7 @@ const learn = async context => {
     message: val,
   });
 
-  await context.sendText(`You say ${key} I say ${val}`);
+  await context.sendText(`You say ${key}, I say ${val}`);
   return;
 };
 
